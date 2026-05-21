@@ -1,0 +1,228 @@
+backend:
+  name: github
+  repo: owner/prelander-factory  # CHANGE: your-github-username/repo-name
+  branch: main
+
+media_folder: public/images
+public_folder: /images
+
+collections:
+  # ── Quiz Funnels ──
+  - name: quiz
+    label: "Quiz-воронки"
+    folder: src/content/quiz
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Описание", name: description, widget: text, required: false }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "OG Image", name: ogImage, widget: image, required: false }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - label: "Шаги квиза"
+        name: steps
+        widget: list
+        fields:
+          - { label: "Вопрос", name: question, widget: string }
+          - { label: "Тип", name: type, widget: select, options: ["single", "multiple", "range"], default: "single" }
+          - label: "Варианты ответа"
+            name: answers
+            widget: list
+            required: false
+            fields:
+              - { label: "Текст", name: text, widget: string }
+              - { label: "Иконка", name: icon, widget: string, required: false }
+      - label: "Результат"
+        name: result
+        widget: object
+        fields:
+          - { label: "Заголовок", name: title, widget: string }
+          - { label: "Текст", name: text, widget: text }
+          - { label: "Текст кнопки", name: ctaText, widget: string }
+          - { label: "Картинка", name: image, widget: image, required: false }
+
+  # ── Articles / Longread ──
+  - name: articles
+    label: "Статьи / Longread"
+    folder: src/content/articles
+    extension: md
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Дата", name: date, widget: datetime, required: false }
+      - { label: "Автор", name: author, widget: string, required: false }
+      - { label: "Аватар автора", name: authorAvatar, widget: image, required: false }
+      - { label: "Категория", name: category, widget: string, required: false }
+      - { label: "Теги", name: tags, widget: list, required: false }
+      - { label: "Обложка", name: cover, widget: image, required: false }
+      - { label: "Анонс", name: excerpt, widget: text, required: false }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "Текст кнопки CTA", name: ctaText, widget: string, default: "Узнать больше" }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - label: "SEO"
+        name: seo
+        widget: object
+        required: false
+        fields:
+          - { label: "SEO Title", name: title, widget: string, required: false }
+          - { label: "SEO Description", name: description, widget: text, required: false }
+      - { label: "Текст статьи", name: body, widget: markdown }
+
+  # ── Product Comparisons ──
+  - name: comparisons
+    label: "Сравнения продуктов"
+    folder: src/content/comparisons
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Описание", name: description, widget: text, required: false }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - label: "Продукты"
+        name: products
+        widget: list
+        fields:
+          - { label: "Название", name: name, widget: string }
+          - { label: "Картинка", name: image, widget: image, required: false }
+          - { label: "Рейтинг (0-5)", name: rating, widget: number, min: 0, max: 5, step: 0.1 }
+          - { label: "Цена", name: price, widget: string, required: false }
+          - { label: "Плюсы", name: pros, widget: list }
+          - { label: "Минусы", name: cons, widget: list }
+          - { label: "Рекомендуем", name: isRecommended, widget: boolean, default: false }
+          - { label: "URL продукта", name: url, widget: string, required: false }
+      - { label: "Критерии сравнения", name: criteria, widget: list, required: false }
+
+  # ── Product Reviews ──
+  - name: reviews
+    label: "Обзоры продуктов"
+    folder: src/content/reviews
+    extension: md
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Название продукта", name: productName, widget: string }
+      - { label: "Фото продукта", name: productImage, widget: image, required: false }
+      - { label: "Рейтинг (0-5)", name: rating, widget: number, min: 0, max: 5, step: 0.1 }
+      - { label: "Цена", name: price, widget: string, required: false }
+      - { label: "Плюсы", name: pros, widget: list, required: false }
+      - { label: "Минусы", name: cons, widget: list, required: false }
+      - { label: "Вердикт", name: verdict, widget: text, required: false }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "Текст CTA", name: ctaText, widget: string, default: "Купить со скидкой" }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - { label: "Автор", name: author, widget: string, required: false }
+      - { label: "Дата", name: date, widget: datetime, required: false }
+      - label: "SEO"
+        name: seo
+        widget: object
+        required: false
+        fields:
+          - { label: "SEO Title", name: title, widget: string, required: false }
+          - { label: "SEO Description", name: description, widget: text, required: false }
+      - { label: "Текст обзора", name: body, widget: markdown }
+
+  # ── Calculators ──
+  - name: calculators
+    label: "Калькуляторы / Тесты"
+    folder: src/content/calculators
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Описание", name: description, widget: text, required: false }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - label: "Поля формы"
+        name: fields
+        widget: list
+        fields:
+          - { label: "Имя поля", name: name, widget: string }
+          - { label: "Метка", name: label, widget: string }
+          - { label: "Тип", name: type, widget: select, options: ["number", "select", "range"] }
+          - { label: "Единица измерения", name: unit, widget: string, required: false }
+          - { label: "Мин", name: min, widget: number, required: false }
+          - { label: "Макс", name: max, widget: number, required: false }
+          - { label: "Шаг", name: step, widget: number, required: false }
+          - { label: "Значение по умолчанию", name: defaultValue, widget: string, required: false }
+      - { label: "Шаблон результата", name: resultTemplate, widget: text }
+      - { label: "Текст CTA", name: ctaText, widget: string, default: "Получить рекомендацию" }
+
+  # ── FAQ Pages ──
+  - name: faqs
+    label: "FAQ-страницы"
+    folder: src/content/faqs
+    extension: json
+    format: json
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Описание", name: description, widget: text, required: false }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "Текст CTA", name: ctaText, widget: string, default: "Попробовать" }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - label: "Вопросы"
+        name: items
+        widget: list
+        fields:
+          - { label: "Вопрос", name: question, widget: string }
+          - { label: "Ответ", name: answer, widget: text }
+
+  # ── Story Format ──
+  - name: stories
+    label: "Story-формат"
+    folder: src/content/stories
+    extension: md
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Заголовок", name: title, widget: string }
+      - { label: "URL-slug", name: slug, widget: string }
+      - { label: "Имя героя", name: heroName, widget: string }
+      - { label: "Возраст", name: heroAge, widget: number, required: false }
+      - { label: "Город", name: heroLocation, widget: string, required: false }
+      - { label: "Аватар", name: heroAvatar, widget: image, required: false }
+      - { label: "Фото До", name: beforeImage, widget: image, required: false }
+      - { label: "Фото После", name: afterImage, widget: image, required: false }
+      - { label: "Дисклеймер", name: disclaimer, widget: text, default: "Это собирательный образ. Результаты индивидуальны." }
+      - { label: "Offer URL", name: offerUrl, widget: string }
+      - { label: "Tracker ID", name: trackerId, widget: string, required: false }
+      - { label: "Текст CTA", name: ctaText, widget: string, default: "Попробовать" }
+      - { label: "Язык", name: lang, widget: select, options: ["ru", "en", "uk", "de", "es"], default: "ru" }
+      - { label: "Noindex", name: noindex, widget: boolean, default: true }
+      - { label: "Дата", name: date, widget: datetime, required: false }
+      - label: "SEO"
+        name: seo
+        widget: object
+        required: false
+        fields:
+          - { label: "SEO Title", name: title, widget: string, required: false }
+          - { label: "SEO Description", name: description, widget: text, required: false }
+      - { label: "Текст истории", name: body, widget: markdown }

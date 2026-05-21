@@ -1,0 +1,27 @@
+---
+interface Props {
+  text: string;
+  class?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { text, class: className = '', size = 'lg' } = Astro.props;
+
+const sizeClasses = {
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg',
+};
+---
+
+<a
+  href="#"
+  data-offer-link
+  class:list={[
+    'inline-block font-bold text-white bg-secondary hover:bg-secondary-dark rounded-xl shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl text-center cursor-pointer',
+    sizeClasses[size],
+    className,
+  ]}
+>
+  {text}
+</a>

@@ -1,0 +1,17 @@
+---
+interface Props {
+  current: number;
+  total: number;
+}
+
+const { current, total } = Astro.props;
+const percent = Math.round((current / total) * 100);
+---
+
+<div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+  <div
+    class="bg-primary h-2.5 rounded-full transition-all duration-500"
+    style={`width: ${percent}%`}
+  ></div>
+  <p class="text-sm text-text-muted mt-1 text-right">{current} / {total}</p>
+</div>
