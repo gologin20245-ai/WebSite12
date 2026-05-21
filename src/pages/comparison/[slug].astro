@@ -1,0 +1,142 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StarRating from '../../components/common/StarRating.astro';
+import CtaButton from '../../components/common/CtaButton.astro';
+
+export async function getStaticPaths() {
+  const comparisons = await getCollection('comparisons');
+  return comparisons.map((c) => ({
+    params: { slug: c.data.slug },
+    props: { comparison: c.data },
+  }));
+}
+
+const { comparison } = Astro.props;
+---
+
+<BaseLayout
+  title={comparison.title}
+  description={comparison.description}
+  lang={comparison.lang}
+  noindex={comparison.noindex}
+  trackerId={comparison.trackerId}
+  offerUrl={comparison.offerUrl}
+>
+  <div class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+    <h1 class="text-3xl sm:text-4xl font-bold text-center mb-3">{comparison.title}</h1>
+    {comparison.description && (
+      <p class="text-text-muted text-center mb-10 text-lg">{comparison.description}</p>
+    )}
+
+    <!-- Cards -->
+    <div class="grid gap-6 md:grid-cols-2 mb-12">
+      {comparison.products.map((product) => (
+        <div class:list={[
+          'bg-white rounded-2xl shadow-md border-2 p-6 relative',
+          product.isRecommended ? 'border-secondary' : 'border-gray-100',
+        ]}>
+          {product.isRecommended && (
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-white text-sm font-bold px-4 py-1 rounded-full">
+              Рекомендуем
+            </span>
+          )}
+
+          {product.image && (
+            <img src={product.image} alt={product.name} class="w-24 h-24 object-contain mx-auto mb-4" />
+          )}
+
+          <h3 class="text-xl font-bold text-center mb-2">{product.name}</h3>
+          <div class="flex justify-center mb-2">
+            <StarRating rating={product.rating} />
+          </div>
+          {product.price && (
+            <p class="text-center text-2xl font-bold text-primary mb-4">{product.price}</p>
+          )}
+
+          <div class="mb-4">
+            <h4 class="font-semibold text-secondary text-sm uppercase mb-2">Плюсы</h4>
+            <ul class="space-y-1">
+              {product.pros.map((pro) => (
+                <li class="flex items-start gap-2 text-sm">
+                  <span class="text-secondary mt-0.5">+</span>
+                  <span>{pro}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="font-semibold text-danger text-sm uppercase mb-2">Минусы</h4>
+            <ul class="space-y-1">
+              {product.cons.map((con) => (
+                <li class="flex items-start gap-2 text-sm">
+                  <span class="text-danger mt-0.5">−</span>
+                  <span>{con}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {product.isRecommended && (
+            <div class="mt-4 text-center">
+              <CtaButton text="Выбрать этот →" size="md" />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <!-- Comparison table -->
+    {comparison.criteria && comparison.criteria.length > 0 && (
+      <div class="overflow-x-auto mb-12">
+        <h2 class="text-2xl font-bold mb-6 text-center">Детальное сравнение</h2>
+        <table class="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-sm">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-3 text-left font-semibold border-b border-gray-200">Критерий</th>
+              {comparison.products.map((p) => (
+                <th class:list={[
+                  'px-4 py-3 text-center font-semibold border-b border-gray-200',
+                  p.isRecommended ? 'bg-green-50' : '',
+                ]}>{p.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {comparison.criteria.map((criterion) => (
+              <tr class="border-b border-gray-100">
+                <td class="px-4 py-3 font-medium">{criterion}</td>
+                {comparison.products.map((p) => (
+                  <td class:list={[
+                    'px-4 py-3 text-center text-sm',
+                    p.isRecommended ? 'bg-green-50/50' : '',
+                  ]}>
+                    {p.features?.[criterion] || '—'}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            <tr>
+              <td class="px-4 py-3 font-medium">Рейтинг</td>
+              {comparison.products.map((p) => (
+                <td class:list={[
+                  'px-4 py-3 text-center',
+                  p.isRecommended ? 'bg-green-50/50' : '',
+                ]}>
+                  <span class="font-bold text-lg">{p.rating}</span>/5
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8 text-center border border-gray-100">
+      <h3 class="text-xl font-bold mb-3">Наш выбор — {comparison.products.find((p) => p.isRecommended)?.name || comparison.products[0].name}</h3>
+      <p class="text-text-muted mb-6">Лучшее сочетание качества, эффективности и цены</p>
+      <CtaButton text="Перейти к заказу →" />
+    </div>
+  </div>
+</BaseLayout>

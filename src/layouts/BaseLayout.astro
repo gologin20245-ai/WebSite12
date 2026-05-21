@@ -1,0 +1,102 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  lang?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
+  trackerId?: string;
+  offerUrl?: string;
+}
+
+const {
+  title,
+  description = '',
+  ogImage = '/images/og-default.jpg',
+  canonical,
+  lang = 'ru',
+  noindex = false,
+  jsonLd,
+  trackerId,
+  offerUrl,
+} = Astro.props;
+
+const canonicalUrl = canonical || Astro.url.href;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonicalUrl} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content={ogImage} />
+
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
+
+    <!-- Tracker pixel (Keitaro / Binom / RedTrack / BeMob) -->
+    {trackerId && (
+      <script set:html={`
+        (function(){
+          var p = new URLSearchParams(window.location.search);
+          window.__tracker = {
+            clickId: p.get('click_id') || p.get('clickid') || p.get('cid') || '',
+            sub1: p.get('sub1') || p.get('utm_source') || '',
+            sub2: p.get('sub2') || p.get('utm_medium') || '',
+            sub3: p.get('sub3') || p.get('utm_campaign') || '',
+            sub4: p.get('sub4') || p.get('utm_content') || '',
+            sub5: p.get('sub5') || p.get('utm_term') || '',
+            trackerId: '${trackerId}',
+            offerUrl: '${offerUrl || '#'}',
+          };
+        })();
+      `} />
+    )}
+  </head>
+  <body class="bg-white text-text font-sans antialiased">
+    <slot />
+
+    {offerUrl && (
+      <script set:html={`
+        document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('[data-offer-link]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+              e.preventDefault();
+              var t = window.__tracker || {};
+              var url = new URL(t.offerUrl || '${offerUrl}');
+              if (t.clickId) url.searchParams.set('click_id', t.clickId);
+              if (t.sub1) url.searchParams.set('sub1', t.sub1);
+              if (t.sub2) url.searchParams.set('sub2', t.sub2);
+              if (t.sub3) url.searchParams.set('sub3', t.sub3);
+              if (t.sub4) url.searchParams.set('sub4', t.sub4);
+              if (t.sub5) url.searchParams.set('sub5', t.sub5);
+              window.location.href = url.toString();
+            });
+          });
+        });
+      `} />
+    )}
+  </body>
+</html>

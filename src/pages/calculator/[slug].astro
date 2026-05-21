@@ -1,0 +1,147 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaButton from '../../components/common/CtaButton.astro';
+
+export async function getStaticPaths() {
+  const calculators = await getCollection('calculators');
+  return calculators.map((c) => ({
+    params: { slug: c.data.slug },
+    props: { calc: c.data },
+  }));
+}
+
+const { calc } = Astro.props;
+---
+
+<BaseLayout
+  title={calc.title}
+  description={calc.description}
+  lang={calc.lang}
+  noindex={calc.noindex}
+  trackerId={calc.trackerId}
+  offerUrl={calc.offerUrl}
+>
+  <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div class="max-w-2xl mx-auto px-4 py-8 sm:py-12">
+      <h1 class="text-2xl sm:text-3xl font-bold text-center mb-2">{calc.title}</h1>
+      {calc.description && (
+        <p class="text-text-muted text-center mb-8">{calc.description}</p>
+      )}
+
+      <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100">
+        <form id="calc-form" class="space-y-6">
+          {calc.fields.map((field) => (
+            <div>
+              <label class="block text-sm font-semibold mb-2" for={field.name}>
+                {field.label}
+                {field.unit && <span class="text-text-muted font-normal ml-1">({field.unit})</span>}
+              </label>
+
+              {field.type === 'select' && (
+                <select
+                  id={field.name}
+                  name={field.name}
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                >
+                  {field.options?.map((opt) => (
+                    <option value={opt.value} selected={opt.value === String(field.defaultValue)}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {field.type === 'number' && (
+                <input
+                  type="number"
+                  id={field.name}
+                  name={field.name}
+                  min={field.min}
+                  max={field.max}
+                  step={field.step || 1}
+                  value={field.defaultValue}
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                />
+              )}
+
+              {field.type === 'range' && (
+                <div>
+                  <input
+                    type="range"
+                    id={field.name}
+                    name={field.name}
+                    min={field.min}
+                    max={field.max}
+                    step={field.step || 1}
+                    value={field.defaultValue}
+                    class="w-full accent-primary"
+                  />
+                  <div class="flex justify-between text-sm text-text-muted mt-1">
+                    <span>{field.min}</span>
+                    <span id={`${field.name}-value`} class="font-bold text-primary">{field.defaultValue}</span>
+                    <span>{field.max}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="submit"
+            class="w-full px-8 py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-lg transition-all duration-200 hover:scale-[1.02] text-lg"
+          >
+            Рассчитать
+          </button>
+        </form>
+
+        <div id="calc-result" class="hidden mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
+          <h3 class="font-bold text-lg mb-2">Результат</h3>
+          <p id="calc-result-text" class="text-text mb-4"></p>
+          <div class="text-center mt-4">
+            <CtaButton text={calc.ctaText} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('input[type="range"]').forEach((range) => {
+      const display = document.getElementById(range.id + '-value');
+      range.addEventListener('input', () => {
+        if (display) display.textContent = (range as HTMLInputElement).value;
+      });
+    });
+
+    document.getElementById('calc-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.target as HTMLFormElement;
+      const fd = new FormData(form);
+
+      const gender = fd.get('gender') as string;
+      const age = Number(fd.get('age'));
+      const weight = Number(fd.get('weight'));
+      const height = Number(fd.get('height'));
+      const activity = Number(fd.get('activity'));
+
+      let bmr: number;
+      if (gender === 'male') {
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+      } else {
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+      }
+
+      const calories = Math.round(bmr * activity);
+      const deficit = Math.round(calories * 0.8);
+
+      const resultEl = document.getElementById('calc-result');
+      const textEl = document.getElementById('calc-result-text');
+      if (resultEl && textEl) {
+        textEl.textContent = `Ваша дневная норма: ${calories} ккал. Для снижения веса рекомендуем ${deficit} ккал/день.`;
+        resultEl.classList.remove('hidden');
+        resultEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  </script>
+</BaseLayout>

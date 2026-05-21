@@ -1,0 +1,35 @@
+name: SEO Agent
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/**'
+
+env:
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+jobs:
+  seo-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run SEO agent
+        run: node scripts/seo-agent.mjs
+
+      - name: Commit SEO improvements
+        run: |
+          git config user.name "SEO Agent"
+          git config user.email "seo-bot@prelander-factory.dev"
+          git add src/content/
+          git diff --cached --quiet || git commit -m "fix(seo): auto-improve meta tags"
+          git push

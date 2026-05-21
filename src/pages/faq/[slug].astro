@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaButton from '../../components/common/CtaButton.astro';
+
+export async function getStaticPaths() {
+  const faqs = await getCollection('faqs');
+  return faqs.map((f) => ({
+    params: { slug: f.data.slug },
+    props: { faq: f.data },
+  }));
+}
+
+const { faq } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+---
+
+<BaseLayout
+  title={faq.title}
+  description={faq.description}
+  lang={faq.lang}
+  noindex={faq.noindex}
+  jsonLd={jsonLd}
+  trackerId={faq.trackerId}
+  offerUrl={faq.offerUrl}
+>
+  <div class="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+    <h1 class="text-2xl sm:text-3xl font-bold text-center mb-3">{faq.title}</h1>
+    {faq.description && (
+      <p class="text-text-muted text-center mb-10">{faq.description}</p>
+    )}
+
+    <div class="space-y-4 mb-12">
+      {faq.items.map((item, i) => (
+        <details class="group bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <summary class="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-50 transition font-medium">
+            <span>{item.question}</span>
+            <svg
+              class="w-5 h-5 text-text-muted transition-transform group-open:rotate-180 shrink-0 ml-4"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="px-6 pb-4 text-text-muted leading-relaxed">
+            {item.answer}
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8 text-center border border-gray-100">
+      <h3 class="text-xl font-bold mb-3">Остались вопросы?</h3>
+      <p class="text-text-muted mb-6">Попробуйте сами и убедитесь в результате</p>
+      <CtaButton text={faq.ctaText} />
+    </div>
+  </div>
+</BaseLayout>

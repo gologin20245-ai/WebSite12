@@ -1,0 +1,65 @@
+{
+  "title": "Калькулятор дневной нормы калорий",
+  "slug": "daily-calories",
+  "description": "Рассчитайте свою дневную норму калорий и получите персональные рекомендации",
+  "lang": "ru",
+  "offerUrl": "https://example.com/offer",
+  "trackerId": "",
+  "noindex": true,
+  "fields": [
+    {
+      "name": "gender",
+      "label": "Пол",
+      "type": "select",
+      "options": [
+        { "label": "Мужской", "value": "male" },
+        { "label": "Женский", "value": "female" }
+      ],
+      "defaultValue": "female"
+    },
+    {
+      "name": "age",
+      "label": "Возраст",
+      "type": "range",
+      "min": 18,
+      "max": 80,
+      "step": 1,
+      "defaultValue": 30,
+      "unit": "лет"
+    },
+    {
+      "name": "weight",
+      "label": "Вес",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "step": 1,
+      "defaultValue": 70,
+      "unit": "кг"
+    },
+    {
+      "name": "height",
+      "label": "Рост",
+      "type": "range",
+      "min": 140,
+      "max": 220,
+      "step": 1,
+      "defaultValue": 170,
+      "unit": "см"
+    },
+    {
+      "name": "activity",
+      "label": "Уровень активности",
+      "type": "select",
+      "options": [
+        { "label": "Сидячий (офис)", "value": "1.2" },
+        { "label": "Лёгкая активность (1-3 тренировки/нед)", "value": "1.375" },
+        { "label": "Средняя активность (3-5 тренировок/нед)", "value": "1.55" },
+        { "label": "Высокая активность (6-7 тренировок/нед)", "value": "1.725" }
+      ],
+      "defaultValue": "1.2"
+    }
+  ],
+  "resultTemplate": "Ваша дневная норма: {calories} ккал. Для снижения веса рекомендуем {deficit} ккал/день.",
+  "ctaText": "Получить план питания →"
+}

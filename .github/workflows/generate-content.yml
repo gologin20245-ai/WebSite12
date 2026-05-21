@@ -1,0 +1,68 @@
+name: AI Content Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Content type'
+        required: true
+        type: choice
+        options:
+          - article
+          - quiz
+          - comparison
+          - review
+          - faq
+          - story
+      topic:
+        description: 'Topic / theme for the content'
+        required: true
+        type: string
+      language:
+        description: 'Language'
+        required: true
+        type: choice
+        options:
+          - ru
+          - en
+          - uk
+          - de
+          - es
+        default: 'ru'
+      offer_url:
+        description: 'Offer URL'
+        required: true
+        type: string
+
+env:
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generate content via AI
+        run: |
+          node scripts/generate-content.mjs \
+            --type "${{ inputs.type }}" \
+            --topic "${{ inputs.topic }}" \
+            --lang "${{ inputs.language }}" \
+            --offer "${{ inputs.offer_url }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name "AI Content Bot"
+          git config user.email "bot@prelander-factory.dev"
+          git add src/content/
+          git diff --cached --quiet || git commit -m "feat(content): AI-generated ${{ inputs.type }} about ${{ inputs.topic }}"
+          git push

@@ -1,0 +1,45 @@
+name: A/B Variator
+
+on:
+  workflow_dispatch:
+    inputs:
+      content_path:
+        description: 'Path to content file (e.g., src/content/articles/vitamins-guide.md)'
+        required: true
+        type: string
+      variations:
+        description: 'Number of headline/CTA variations'
+        required: true
+        type: number
+        default: 3
+
+env:
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+jobs:
+  generate-variations:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generate A/B variations
+        run: |
+          node scripts/ab-variator.mjs \
+            --file "${{ inputs.content_path }}" \
+            --count "${{ inputs.variations }}"
+
+      - name: Commit variations
+        run: |
+          git config user.name "A/B Variator"
+          git config user.email "ab-bot@prelander-factory.dev"
+          git add src/content/
+          git diff --cached --quiet || git commit -m "feat(ab): generate ${{ inputs.variations }} variations for ${{ inputs.content_path }}"
+          git push
